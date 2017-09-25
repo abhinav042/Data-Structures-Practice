@@ -7,8 +7,8 @@ The Node struct is defined as follows:
       Node* right;
    }
 */
-const int INT_MIN = 32767;
-const int INT_MAX = -32767;
+const int INT_MIN = -32767;
+const int INT_MAX = 32767;
 bool checkBST(Node* root) {
    return (checkBSTUtil (root, INT_MIN, INT_MAX));
 }
