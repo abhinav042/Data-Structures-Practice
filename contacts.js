@@ -1,3 +1,5 @@
+/////////////// input stuff ////////////////////
+
 process.stdin.resume();
 process.stdin.setEncoding('ascii');
 
@@ -20,13 +22,88 @@ function readLine() {
 
 /////////////// ignore above this line ////////////////////
 
-// names obj to store a list of all the names
-let names = {};
-let numAdd = 1;
+// Defining a node
+let Node = function() {
+    this.keys = new Map();
+    this.end = false;
+    this.setEnd = function() {
+        this.end = true;
+    };
+    this.isEnd = function() {
+        return this.end;
+    };
+};
+
+// implementing trie data structure
+let Trie = function() {
+    // defining root node
+    this.root = new Node();
+    // add function for inserting a word
+    this.add = function(input, node = this.root) {
+        if (input.length === 0) {
+            node.setEnd();
+            return;
+        } else if (!node.keys.has(input[0])) {
+            node.keys.set(input[0], new Node());
+            return this.add(input.substr(1), node.keys.get(input[0]));
+        } else {
+            return this.add(input.substr(1), node.keys.get(input[0]));
+        }
+    }
+    // counting words starting from the input
+    this.count = function(input) {
+        let words = new Array();
+        let node = this.root;
+        while(input.length > 0) {
+            if(node.keys.has(input[0])) {
+                node = node.keys.get(input[0]);
+                input = input.substr(1);
+            } else {
+                return 0;
+            };
+        };
+        let search = function(node, string) {
+            if(node.keys.size != 0) {
+                for(let letter of node.keys.keys()) {
+                    search(node.keys.get(letter), string.concat(letter));
+                };
+                if (node.isEnd()) {
+                    words.push(string);
+                };
+            } else {
+                string.length > 0 ? words.push(string) : undefined;
+                return;
+            };
+        };
+        search(node, new String());
+        return words.length;
+    };   
+    // helper print function
+    this.print = function() {
+        let words = new Array();
+        let search = function(node, string) {
+            if (node.keys.size != 0) {
+                for (let letter of node.keys.keys()) {
+                    search(node.keys.get(letter), string.concat(letter));
+                };
+                if (node.isEnd()) {
+                    words.push(string);
+                };
+            } else {
+                string.length > 0 ? words.push(string) : undefined;
+                return;
+            };
+        };
+        search(this.root, new String());
+        return words.length > 0 ? words : null;
+    };
+};
 
 function main() {
+
     // number of ops
     const n = parseInt(readLine());
+    const trie = new Trie();
     for(let a0 = 0; a0 < n; a0++){
         // getting the op + string
         let op_temp = readLine().split(' ');
@@ -34,22 +111,28 @@ function main() {
         let op = op_temp[0];
         // the string
         let contact = op_temp[1];
+        
         function runAlgo(op, contact) {
             const operations = {
-                "add" : (contact) => {
-                    names[numAdd] = contact;
-                    numAdd++;
+                "add" : (contact) => {                 
+                    /* inefficient implementation */
+                    // names[numAdd] = contact;
+                    // numAdd++;
+    
+                    trie.add(contact);
                 },
                 "find" : (contact) => {
-                    let count = 0;
-                    for (const key of Object.keys(names)) {
-                        if (names[key].includes(contact)) count++;
-                    }
-                    console.log(count);
+                    /* inefficient implementation */
+                    // let count = 0;               
+                    // countArr = names.filter((name)=> {
+                    //     return name.startsWith(contact);
+                    // });
+                    
+                    console.log(trie.count(contact));
                 }
             };
             operations[op](contact);
-        };
+        };   
         runAlgo(op, contact);
     }
 }
